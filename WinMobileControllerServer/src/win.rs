@@ -1,13 +1,15 @@
-use windows::{Win32::{UI::WindowsAndMessaging::*, Foundation::* }, Win32::UI::Input::KeyboardAndMouse::*};
+use windows::{Win32::Foundation::* , Win32::UI::Input::KeyboardAndMouse::*};
 
 // 入力実行
 pub fn execute_inputs(inputs: &[INPUT]) -> Result<(), WIN32_ERROR>{
-    let result = unsafe {
-        SendInput(&inputs, std::mem::size_of::<INPUT>() as i32)
-    };
+    unsafe {
+        SendInput(&inputs, std::mem::size_of::<INPUT>() as i32);
 
-    if result == 0 {
-        return Err(unsafe{GetLastError()});
+        let err = GetLastError();
+        // print!("err: {}", err.0);
+        if err.0 != 0 {
+            return Err(err);
+        }
     }
 
     Ok(())
@@ -106,40 +108,40 @@ pub fn get_mouse_click_up_input(click_type: MouseClickType) -> INPUT {
 }
 
 // キーボード関連は動作が安定しないので一旦コメントアウト
-// // キーボード押下入力
-// pub fn get_key_down_input(key_code: VIRTUAL_KEY) -> INPUT {
-//     let input = INPUT{
-//         r#type: INPUT_KEYBOARD,
-//         Anonymous: INPUT_0{
-//             ki: KEYBDINPUT{
-//                 wVk: key_code,
-//                 wScan: 0,
-//                 dwFlags: KEYEVENTF_EXTENDEDKEY,
-//                 time: 0,
-//                 dwExtraInfo: 0,
-//             },
-//         }
-//     };
+// キーボード押下入力
+pub fn get_key_down_input(key_code: VIRTUAL_KEY) -> INPUT {
+    let input = INPUT{
+        r#type: INPUT_KEYBOARD,
+        Anonymous: INPUT_0{
+            ki: KEYBDINPUT{
+                wVk: key_code,
+                wScan: 0,
+                dwFlags: KEYEVENTF_EXTENDEDKEY,
+                time: 0,
+                dwExtraInfo: 0,
+            },
+        }
+    };
 
-//     input
-// }
-// // キーボード解放入力
-// pub fn get_key_up_input(key_code: VIRTUAL_KEY) -> INPUT {
-//     let input = INPUT{
-//         r#type: INPUT_KEYBOARD,
-//         Anonymous: INPUT_0{
-//             ki: KEYBDINPUT{
-//                 wVk: key_code,
-//                 wScan: 0,
-//                 dwFlags: KEYEVENTF_KEYUP,
-//                 time: 0,
-//                 dwExtraInfo: 0,
-//             },
-//         }
-//     };
+    input
+}
+// キーボード解放入力
+pub fn get_key_up_input(key_code: VIRTUAL_KEY) -> INPUT {
+    let input = INPUT{
+        r#type: INPUT_KEYBOARD,
+        Anonymous: INPUT_0{
+            ki: KEYBDINPUT{
+                wVk: key_code,
+                wScan: 0,
+                dwFlags: KEYEVENTF_KEYUP,
+                time: 0,
+                dwExtraInfo: 0,
+            },
+        }
+    };
 
-//     input
-// }
+    input
+}
 
 
 // 取得座標系がスクリーン座標で微妙に異なる用なので一旦コメントアウト
