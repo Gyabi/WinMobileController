@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import "package:gesture_x_detector/gesture_x_detector.dart";
+import "virtual_mouse_logic.dart";
+import 'package:provider/provider.dart';
 
 final _logger = Logger('VirtualMousePage');
 
@@ -13,18 +15,26 @@ class VirtualMousePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 画面の定義
-    return Scaffold(
-      // アプリバー
-      appBar: AppBar(
-        title: Text(title),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
-      // ボディ
-      body: const Center(
-        child: ConnectControlWidget(),
+    return ChangeNotifierProvider<VirtualMouseLogic>(
+      create: (_) => VirtualMouseLogic(),
+      child: Scaffold(
+        // アプリバー
+        appBar: AppBar(
+          title: Text(title),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        ),
+        // ボディ
+      body: const Column(
+          children: [
+            // 接続制御UI
+            ConnectControlWidget(),
+            Divider(),
+            MouseControlWidget()
+          ],
+        ),
       )
     );
+    // 画面の定義
   }
 }
 
@@ -39,13 +49,12 @@ class ConnectControlWidget extends StatefulWidget {
 }
 
 class _ConnectControlWidgetState extends State<ConnectControlWidget> {
-  bool _isConnected = false;
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
+    // ロジッククラスのインスタンスを取得
+    final logic = Provider.of<VirtualMouseLogic>(context, listen: true);
+
+    return Container(
           margin: const EdgeInsets.all(20.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -54,38 +63,28 @@ class _ConnectControlWidgetState extends State<ConnectControlWidget> {
                 margin: const EdgeInsets.all(10.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO:ここに接続処理を実装する
-                    setState(() {
-                      _isConnected = !_isConnected;
-                    });
+                    if (logic.isConnected()) {
+                      logic.deleteConnection();
+                    } else {
+                      logic.createConnection();
+                    }
                   },
-                  child: Text(_isConnected ? 'Disconnect' : 'Connect'),
+                  child: Text(logic.isConnected() ? 'Disconnect' : 'Connect'),
                 ),
               ),
               Container(
                 margin: const EdgeInsets.all(10.0),
                 child: Text(
-                  _isConnected ? 'CONNECTING' : 'DISCONNECTED',
+                  logic.isConnected() ? 'CONNECTING' : 'DISCONNECTED',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: _isConnected ? Colors.green : Colors.red,
+                    color: logic.isConnected() ? Colors.green : Colors.red,
                   ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const Divider(),
-        // 接続状態のみUI表示
-        Visibility(
-          visible: _isConnected,
-          child: Container(
-            margin: const EdgeInsets.all(20.0),
-            child: const MouseControlWidget(),
-          ),
-        )
-      ],
+                )
+              )
+            ]
+          )
     );
   }
 }
@@ -106,111 +105,118 @@ class _MouseControlWidgetState extends State<MouseControlWidget> {
   Widget build(BuildContext context) {
     // 画面サイズの80%を疑似マウスエリアとする
     double areaWidth = MediaQuery.of(context).size.width * 0.8;
+    // ロジッククラスのインスタンスを取得
+    final logic = Provider.of<VirtualMouseLogic>(context, listen: true);
 
-    return Column(
-      children: [
-        Container(
-          height: areaWidth * 0.4,
-          width: areaWidth,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // 左クリックボタン
-              ElevatedButton(
-                onPressed: () {
-                  // TODO:ここに左ボタン押下処理を記述する
-                  _logger.info("push left button");
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  )
-                ),
-                child: const Text('LEFT'),
-              ),
-
-              // スクロールホイール
-              // タップ→ホイールクリック
-              // 上下スワイプ→スクロール
-              XGestureDetector(
-                onTap: (TapEvent event) => {
-                  _logger.info("push wheel button")
-                },
-                onMoveStart: (MoveEvent event) => {
-                  _logger.info("start scroll")
-                },
-                onMoveUpdate: (MoveEvent event) => {
-                  _logger.info("scrolling")
-                },
-                onMoveEnd: (MoveEvent event) => {
-                  _logger.info("end scroll")
-                },
-
-                child: Container(
-                  width: areaWidth * 0.2,
-                  margin: const EdgeInsets.all(20.0),
-                  padding: const EdgeInsets.all(20.0),
-                  decoration: BoxDecoration(
-                    color: Colors.grey,
-                    borderRadius: BorderRadius.circular(10),
+    return Visibility(
+      visible: logic.isConnected(),
+      child: Container(
+        margin: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            Container(
+              height: areaWidth * 0.4,
+              width: areaWidth,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // 左クリックボタン
+                  ElevatedButton(
+                    onPressed: () {
+                      logic.onPushMouseLeftButton();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                    ),
+                    child: const Text('LEFT'),
                   ),
-                ),
+
+                  // スクロールホイール
+                  // タップ→ホイールクリック
+                  // 上下スワイプ→スクロール
+                  XGestureDetector(
+                    onTap: (TapEvent event) => {
+                      logic.onPushMouseWheelButton()
+                    },
+                    onMoveStart: (MoveEvent event) => {
+                      logic.onStartScrollMouseWheel(event)
+                    },
+                    onMoveUpdate: (MoveEvent event) => {
+                      logic.onUpdateScrollMouseWheel(event)
+                    },
+                    onMoveEnd: (MoveEvent event) => {
+                      logic.onEndScrollMouseWheel(event)
+                    },
+
+                    child: Container(
+                      width: areaWidth * 0.2,
+                      margin: const EdgeInsets.all(20.0),
+                      padding: const EdgeInsets.all(20.0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+
+                  // 右クリックボタン
+                  ElevatedButton(
+                    onPressed: () {
+                      logic.onPushMouseRightButton();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                    ),
+                    child: const Text('RIGHT'),
+                  ),
+                ],
               ),
-
-              // 右クリックボタン
-              ElevatedButton(
-                onPressed: () {
-                  // TODO:ここに右ボタン押下処理を記述する
-                  _logger.info("push right button");
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  )
-                ),
-                child: const Text('RIGHT'),
-              ),
-            ],
-          ),
-        ),
-
-        // クリック→右クリック
-        // ピンチインアウト→拡大縮小
-        XGestureDetector(
-          onTap: (TapEvent event) => {
-            _logger.info("push mouse")
-          },
-          onScaleStart: (Offset event) => {
-            _logger.info("start zoom")
-          },
-          onScaleUpdate: (ScaleEvent event) => {
-            _logger.info("zooming")
-          },
-          onScaleEnd: () => {
-            _logger.info("end zoom")
-          },
-          onMoveStart: (MoveEvent event) => {
-            _logger.info("start move")
-          },
-          onMoveUpdate: (MoveEvent event) => {
-            _logger.info("moving")
-          },
-          onMoveEnd: (MoveEvent event) => {
-            _logger.info("end move")
-          },
-
-          child: Container(
-            height: areaWidth,
-            width: areaWidth,
-            margin: const EdgeInsets.all(20.0),
-            padding: const EdgeInsets.all(20.0),
-            decoration: BoxDecoration(
-              color: Colors.grey,
-              borderRadius: BorderRadius.circular(10),
             ),
-          ),
+
+            // クリック→右クリック
+            // ピンチインアウト→拡大縮小
+            XGestureDetector(
+              onTap: (TapEvent event) => {
+                logic.onPushMouseLeftButton()
+              },
+              onScaleStart: (Offset event) => {
+                logic.onStartZoom(event)
+              },
+              onScaleUpdate: (ScaleEvent event) => {
+                logic.onUpdateZoom(event)
+              },
+              onScaleEnd: () => {
+                logic.onEndZoom()
+              },
+              onMoveStart: (MoveEvent event) => {
+                logic.onStartMouseMove(event)
+              },
+              onMoveUpdate: (MoveEvent event) => {
+                logic.onUpdateMouseMove(event)
+              },
+              onMoveEnd: (MoveEvent event) => {
+                logic.onEndMouseMove(event)
+              },
+
+              child: Container(
+                height: areaWidth,
+                width: areaWidth,
+                margin: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  color: Colors.grey,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            )
+          ],
         )
-      ],
-    ); 
+      )
+    );
+    
   }
 }
