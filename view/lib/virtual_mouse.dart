@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import "package:gesture_x_detector/gesture_x_detector.dart";
 
 final _logger = Logger('VirtualMousePage');
 
@@ -131,17 +132,17 @@ class _MouseControlWidgetState extends State<MouseControlWidget> {
               // スクロールホイール
               // タップ→ホイールクリック
               // 上下スワイプ→スクロール
-              GestureDetector(
-                onTap: () => {
+              XGestureDetector(
+                onTap: (TapEvent event) => {
                   _logger.info("push wheel button")
                 },
-                onVerticalDragStart: (details) => {
+                onMoveStart: (MoveEvent event) => {
                   _logger.info("start scroll")
                 },
-                onVerticalDragUpdate: (details) => {
+                onMoveUpdate: (MoveEvent event) => {
                   _logger.info("scrolling")
                 },
-                onVerticalDragEnd: (details) => {
+                onMoveEnd: (MoveEvent event) => {
                   _logger.info("end scroll")
                 },
 
@@ -175,19 +176,29 @@ class _MouseControlWidgetState extends State<MouseControlWidget> {
 
         // クリック→右クリック
         // ピンチインアウト→拡大縮小
-        GestureDetector(
-          onTap: () => {
+        XGestureDetector(
+          onTap: (TapEvent event) => {
             _logger.info("push mouse")
           },
-          onScaleStart: (details) => {
+          onScaleStart: (Offset event) => {
             _logger.info("start zoom")
           },
-          onScaleUpdate: (details) => {
+          onScaleUpdate: (ScaleEvent event) => {
             _logger.info("zooming")
           },
-          onScaleEnd: (details) => {
+          onScaleEnd: () => {
             _logger.info("end zoom")
           },
+          onMoveStart: (MoveEvent event) => {
+            _logger.info("start move")
+          },
+          onMoveUpdate: (MoveEvent event) => {
+            _logger.info("moving")
+          },
+          onMoveEnd: (MoveEvent event) => {
+            _logger.info("end move")
+          },
+
           child: Container(
             height: areaWidth,
             width: areaWidth,
