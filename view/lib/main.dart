@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import "./virtual_mouse.dart";
+import "package:logging/logging.dart";
 
 void main() {
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    print('${record.level.name}: ${record.time}: ${record.message}');
+  });
+
   runApp(const MyApp());
 }
 

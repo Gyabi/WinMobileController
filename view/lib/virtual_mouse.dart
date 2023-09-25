@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
+
+final _logger = Logger('VirtualMousePage');
 
 // 仮想マウスを表示するページ
 class VirtualMousePage extends StatelessWidget {
@@ -72,6 +75,7 @@ class _ConnectControlWidgetState extends State<ConnectControlWidget> {
             ],
           ),
         ),
+        const Divider(),
         // 接続状態のみUI表示
         Visibility(
           visible: _isConnected,
@@ -111,35 +115,52 @@ class _MouseControlWidgetState extends State<MouseControlWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // 左クリックボタン
-              Container(
-                child: ElevatedButton(
-                  onPressed: () {
-                    // TODO:ここに左ボタン押下処理を記述する
-                    print("push left button");
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                  ),
-                  child: const Text('LEFT'),
+              ElevatedButton(
+                onPressed: () {
+                  // TODO:ここに左ボタン押下処理を記述する
+                  _logger.info("push left button");
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  )
                 ),
+                child: const Text('LEFT'),
               ),
+
               // スクロールホイール
-              Container(
-                width: areaWidth * 0.2,
-                margin: const EdgeInsets.all(20.0),
-                padding: const EdgeInsets.all(20.0),
-                decoration: BoxDecoration(
-                  color: Colors.grey,
-                  borderRadius: BorderRadius.circular(10),
+              // タップ→ホイールクリック
+              // 上下スワイプ→スクロール
+              GestureDetector(
+                onTap: () => {
+                  _logger.info("push wheel button")
+                },
+                onVerticalDragStart: (details) => {
+                  _logger.info("start scroll")
+                },
+                onVerticalDragUpdate: (details) => {
+                  _logger.info("scrolling")
+                },
+                onVerticalDragEnd: (details) => {
+                  _logger.info("end scroll")
+                },
+
+                child: Container(
+                  width: areaWidth * 0.2,
+                  margin: const EdgeInsets.all(20.0),
+                  padding: const EdgeInsets.all(20.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
+
               // 右クリックボタン
               ElevatedButton(
                 onPressed: () {
                   // TODO:ここに右ボタン押下処理を記述する
-                  print("push right button");
+                  _logger.info("push right button");
                 },
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
@@ -152,16 +173,32 @@ class _MouseControlWidgetState extends State<MouseControlWidget> {
           ),
         ),
 
-        Container(
-          height: areaWidth,
-          width: areaWidth,
-          margin: const EdgeInsets.all(20.0),
-          padding: const EdgeInsets.all(20.0),
-          decoration: BoxDecoration(
-            color: Colors.grey,
-            borderRadius: BorderRadius.circular(10),
+        // クリック→右クリック
+        // ピンチインアウト→拡大縮小
+        GestureDetector(
+          onTap: () => {
+            _logger.info("push mouse")
+          },
+          onScaleStart: (details) => {
+            _logger.info("start zoom")
+          },
+          onScaleUpdate: (details) => {
+            _logger.info("zooming")
+          },
+          onScaleEnd: (details) => {
+            _logger.info("end zoom")
+          },
+          child: Container(
+            height: areaWidth,
+            width: areaWidth,
+            margin: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: Colors.grey,
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
-        ),
+        )
       ],
     ); 
   }

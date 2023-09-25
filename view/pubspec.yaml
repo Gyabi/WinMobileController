@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  logging: ^1.2.0
+  gesture_x_detector:
 
 
   # The following adds the Cupertino Icons font to your application.
