@@ -3,11 +3,13 @@ import "./virtual_mouse.dart";
 import "package:logging/logging.dart";
 
 void main() {
+  // ログ設定
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
     print('${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}');
   });
 
+  // エントリポイント
   runApp(const MyApp());
 }
 
@@ -15,7 +17,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

@@ -1,40 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:logging/logging.dart';
 import "package:gesture_x_detector/gesture_x_detector.dart";
 import "virtual_mouse_logic.dart";
 import 'package:provider/provider.dart';
 
-final _logger = Logger('VirtualMousePage');
-
 // 仮想マウスを表示するページ
 class VirtualMousePage extends StatelessWidget {
-  
+  // constructor
   const VirtualMousePage({Key? key, required this.title}) : super(key: key);
 
-  final String title;
+  final String title; //constructor引数はfinalで宣言
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<VirtualMouseLogic>(
-      create: (_) => VirtualMouseLogic(),
-      child: Scaffold(
-        // アプリバー
+    // 画面の定義
+    return ChangeNotifierProvider<VirtualMouseLogic>( //ChangeNotifierProviderがProviderパターンを強制実装
+      create: (_) => VirtualMouseLogic(), //伝搬したいインスタンスをここで指定
+      child: Scaffold( //childでは自由にPoviderからインスタンスを取得できるようになる
         appBar: AppBar(
-          title: Text(title),
+          title: Text(
+            title,
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 20.0,
+              ),
+            ),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
         // ボディ
-      body: const Column(
+        body: const Column(
           children: [
             // 接続制御UI
             ConnectControlWidget(),
-            Divider(),
+            Divider(), //区切り線
+            // 疑似マウスUI
             MouseControlWidget()
           ],
         ),
       )
     );
-    // 画面の定義
   }
 }
 
@@ -51,7 +55,7 @@ class ConnectControlWidget extends StatefulWidget {
 class _ConnectControlWidgetState extends State<ConnectControlWidget> {
   @override
   Widget build(BuildContext context) {
-    // ロジッククラスのインスタンスを取得
+    // Providerよりロジッククラスのインスタンスを取得
     final logic = Provider.of<VirtualMouseLogic>(context, listen: true);
 
     return Container(
