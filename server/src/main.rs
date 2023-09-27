@@ -2,11 +2,21 @@ mod win;
 
 use windows::Win32::UI::Input::KeyboardAndMouse::*;
 
-// restapiサーバを立ち上げる
 fn main() {
+    // mqttサブスクライバとして起動
+    
+    
+    
+    
+    
+    // win_sample();
+}
+
+
+fn win_sample() {
     let sleep_time = std::time::Duration::from_millis(3000);
     std::thread::sleep(sleep_time);
-
+    
     // ALT押下
     let alt_down_input = win::get_key_down_input(VK_LMENU);
     // TAB押下解放
@@ -25,20 +35,20 @@ fn main() {
     // CTRL解放
     let ctrl_up_input = win::get_key_up_input(VK_LCONTROL);
     
-
+    
     
     let array = [alt_down_input, tab_down_input];
     win::execute_inputs(&array).unwrap();
     std::thread::sleep(std::time::Duration::from_millis(100));
-
+    
     let array = [tab_up_input, alt_up_input];
     win::execute_inputs(&array).unwrap();
     std::thread::sleep(std::time::Duration::from_millis(100));
-
+    
     let array = [mouse_move_input, mouse_click_down_input, mouse_click_up_input];
     win::execute_inputs(&array).unwrap();
     std::thread::sleep(std::time::Duration::from_millis(100));
-
+    
     let array = [ctrl_down_input, wheel_input];
     win::execute_inputs(&array).unwrap();
     std::thread::sleep(std::time::Duration::from_millis(100));

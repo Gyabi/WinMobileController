@@ -28,15 +28,17 @@ class VirtualMousePage extends StatelessWidget {
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
         // ボディ
-        body: const Column(
-          children: [
-            // 接続制御UI
-            ConnectControlWidget(),
-            Divider(), //区切り線
-            // 疑似マウスUI
-            MouseControlWidget()
-          ],
-        ),
+        body: const SingleChildScrollView(
+          child: Column(
+            children: [
+              // 接続制御UI
+              ConnectControlWidget(),
+              Divider(), //区切り線
+              // 疑似マウスUI
+              MouseControlWidget()
+            ],
+          ),
+        )
       )
     );
   }
