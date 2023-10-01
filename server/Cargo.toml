@@ -6,6 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+paho-mqtt = "0.12.2"
+uuid = { version = "1.4.1", features = ["v4"] }
+futures = { version = "0.3", default-features = false }
 windows = { version = "0.48", features = [
     "Win32_Foundation",
     "Win32_UI_WindowsAndMessaging",
