@@ -4,10 +4,10 @@ use uuid::Uuid;
 use std::time::Duration;
 
 pub fn start_subscribe<F>(
-    host: &str,
+    host: String,
     port: u16,
-    topics: &[&str],
-    qoss: &[i32],
+    topics: Vec<String>,
+    qoss: Vec<i32>,
     closures: F,
     use_ssl: bool,
 ) -> thread::JoinHandle<()>
@@ -43,21 +43,21 @@ where
         closures(msg.unwrap());
     });
 
-    // コネクション作成
-    client.connect(conn_opts).wait().unwrap_or_else(|e|{
-        println!("Unable to connect: {:?}", e);
-        std::process::exit(1);
-    });
-
-    // サブスクライブ
-    let sub_opts = vec![SubscribeOptions::with_retain_as_published(); topics.len()];
-    client.subscribe_many_with_options(topics, qoss, &sub_opts, None).wait().unwrap_or_else(|e|{
-        println!("Unable to subscribe: {:?}", e);
-        std::process::exit(1);
-    });
-
     thread::spawn(move || {
         println!("start subscribe");
+        // コネクション作成
+        client.connect(conn_opts).wait().unwrap_or_else(|e|{
+            println!("Unable to connect: {:?}", e);
+            std::process::exit(1);
+        });
+    
+        // サブスクライブ
+        let sub_opts = vec![SubscribeOptions::with_retain_as_published(); topics.len()];
+        
+        client.subscribe_many_with_options(topics.as_slice(), qoss.as_slice(), &sub_opts, None).wait().unwrap_or_else(|e|{
+            println!("Unable to subscribe: {:?}", e);
+            std::process::exit(1);
+        });
 
         // メッセージ受信待ち
         loop {

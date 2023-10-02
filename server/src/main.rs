@@ -3,20 +3,22 @@ mod mqtt_subscriber;
 mod mqtt_publisher;
 
 use windows::Win32::UI::Input::KeyboardAndMouse::*;
-
 fn main() {
+    let topics = vec!["test/Topic1".to_string()];
+    let qoss = vec![1];
+    
     // mqttサブスクライバ起動    
     let handle_sub = mqtt_subscriber::start_subscribe(
-        "localhost",
+        "localhost".to_string(),
         1883,
-        &["test/Topic1"],
-        &[1],
+        topics.clone(),
+        qoss.clone(),
         |message| {
             println!("Received message: {:?}", message);
         },
         false,
     );
-    // handle_sub.join().unwrap();
+    handle_sub.join().unwrap();
     // mqttパブリッシャー起動
 
     // win_sample();
