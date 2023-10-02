@@ -1,13 +1,23 @@
 use windows::Win32::UI::Input::KeyboardAndMouse::*;
 
-use crate::mqtt_publisher;
+use crate::mqtt_utils::mqtt_publisher;
 use crate::win;
+use crate::logic;
+
+use serde_json;
 
 pub fn pub_sample() {
     let host = "localhost";
     let port = 1883;
-    let topic = "test/Topic1";
-    let payloads = vec![vec![0x01, 0x02, 0x03], vec![0x04, 0x05, 0x06]];
+    let topic = "WinMobControl/PushMouseButton";
+    let payloads = vec![
+        serde_json::to_vec(
+            &logic::PushMouseButtonPayload {
+                button: logic::MouseButton::Left,
+            }
+        ).unwrap(),
+    ];
+    // let payloads = vec![vec![0x01, 0x02, 0x03], vec![0x04, 0x05, 0x06]];
     let interval = 1000;
     let use_ssl = false;
     let handle = mqtt_publisher::start_publish(

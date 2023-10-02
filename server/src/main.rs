@@ -1,11 +1,10 @@
 mod win;
-mod mqtt_subscriber;
-mod mqtt_publisher;
+mod mqtt_utils;
 mod samples;
+mod logic;
 
-use windows::Win32::UI::Input::KeyboardAndMouse::*;
-use paho_mqtt::Message;
-use log::{info, debug, error};
+use mqtt_utils::mqtt_subscriber;
+use logic::call_back;
 
 fn main() {
     // ログ出力設定
@@ -16,6 +15,7 @@ fn main() {
     // - WinMobControl/ScrollMouseWheel
     // - WinMobControl/MoveMouseCursor
     // - WinMobControl/Zoom
+
     let host = "localhost";
     let port = 1883;
     let topics = vec![
@@ -38,44 +38,12 @@ fn main() {
         false,
     );
     
-    // // 1秒スリープ
-    // std::thread::sleep(std::time::Duration::from_millis(1000));
-    // // mqttパブリッシャー起動
-    // samples::pub_sample();
+    // 1秒スリープ
+    std::thread::sleep(std::time::Duration::from_millis(1000));
+    // mqttパブリッシャー起動
+    samples::pub_sample();
     
     handle_sub.join().unwrap();
 
     // samples::win_sample();
-}
-
-/// メッセージ受信時のコールバック
-/// 
-/// * `message` - 受信したメッセージ
-fn call_back(message: Message) {
-    // メッセージを解析して、実行する操作を決定する
-    // ペイロードをjsonデシリアライズ
-    // let payload = message.payload_str().unwrap();
-    // let json: serde_json::Value = serde_json::from_str(payload).unwrap();
-
-    // トピック名取得
-    let topic = message.topic().to_string();
-
-    // topicの値に応じて処理分岐
-    match topic.as_str() {
-        "WinMobControl/PushMouseButton" => {
-            debug!("PushMouseButton");
-        },
-        "WinMobControl/ScrollMouseWheel" => {
-            debug!("ScrollMouseWheel");
-        },
-        "WinMobControl/MoveMouseCursor" => {
-            debug!("MoveMouseCursor");
-        },
-        "WinMobControl/Zoom" => {
-            debug!("Zoom");
-        },
-        _ => {
-            error!("unknown topic");
-        }
-    }
 }
