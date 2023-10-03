@@ -38,12 +38,13 @@ fn main() {
         false,
     );
     
-    // 1秒スリープ
-    std::thread::sleep(std::time::Duration::from_millis(1000));
-    // mqttパブリッシャー起動
-    samples::pub_sample();
-    
     handle_sub.join().unwrap();
+
+    // // 1秒スリープ
+    // std::thread::sleep(std::time::Duration::from_millis(1000));
+    // // mqttパブリッシャー起動
+    // samples::pub_sample();
+    
 
     // samples::win_sample();
 }

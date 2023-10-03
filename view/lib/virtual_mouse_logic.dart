@@ -1,18 +1,20 @@
 import 'dart:async';
+import "dart:convert";
 
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import "package:gesture_x_detector/gesture_x_detector.dart";
 import 'package:shared_preferences/shared_preferences.dart';
+import 'mqtt_publisher.dart';
 
 final _logger = Logger('VirtualMouseLogic');
 
 
 class VirtualMouseLogic extends ChangeNotifier{
+  // MQTTパブリッシャー
+  final MQTTPublisher _publisher = MQTTPublisher();
   // 送信間隔[ms]
   final int _duration = 100;
-  // 接続状態
-  bool _isConnected = false;
   // 各種処理に対応するデータ保存用変数
   bool _isPushLeftButton = false;
   bool _isPushWheelButton = false;
@@ -59,32 +61,26 @@ class VirtualMouseLogic extends ChangeNotifier{
   }
 
   // mqtt接続
-  bool createConnection() {
-    _isConnected = true;
-    notifyListeners();
-    _logger.info("create connection");
-    // 接続成功したらtrueを返す
-    return true;
+  Future<bool> createConnection() async {
+    bool result = await _publisher.createConnection(_ipAddress, _port);
+    if(result) {
+      notifyListeners();
+    }
+    return result;
   }
 
   // mqtt接続解除
   bool deleteConnection() {
-    _isConnected = false;
-    notifyListeners();
-    _logger.info("delete connection");
-    // 接続解除成功したらtrueを返す
-    return true;
+    bool result = _publisher.deleteConnection();
+    if(result) {
+      notifyListeners();
+    }
+    return result;
   }
 
   // mqtt接続確認
   bool isConnected() {
-    return _isConnected;
-  }
-
-  // データ送信
-  bool sendData() {
-    // データ送信成功したらtrueを返す
-    return true;
+    return _publisher.isConnected();
   }
 
   void onPushMouseLeftButton() {
@@ -139,30 +135,59 @@ class VirtualMouseLogic extends ChangeNotifier{
 
   void update() {
     // 接続されていなければ何もしない
-    if(_isConnected == false) {
+    if(isConnected() == false) {
       return;
     }
 
     // データがたまっていれば送信処理へ移行
-    // TODO:送信時の値をのレンジはあとで調整
     if(_isPushLeftButton) {
       _isPushLeftButton = false;
       _logger.info("send left button");
+      String payload = json.encode({
+        'button': "Left"
+      }); 
+      bool result = _publisher.sendData('WinMobControl/PushMouseButton', payload);
+      if(result == false) {
+        _logger.info("send left button failed");
+      }
     }
 
     if(_isPushWheelButton) {
       _isPushWheelButton = false;
       _logger.info("send wheel button");
+      String payload = json.encode({
+        'button': "Wheel"
+      });
+      bool result = _publisher.sendData('WinMobControl/PushMouseButton', payload);
+      if(result == false) {
+        _logger.info("send wheel button failed");
+      }
     }
 
     if(_isPushRightButton) {
       _isPushRightButton = false;
       _logger.info("send right button");
+      String payload = json.encode({
+        'button': "Right"
+      });
+      bool result = _publisher.sendData('WinMobControl/PushMouseButton', payload);
+      if(result == false) {
+        _logger.info("send right button failed");
+      }
     }
 
     if(_scrollWheelDelta != 0.0) {
+      _scrollWheelDelta *= _wheelSensitivity;
       _logger.info("send scroll wheel delta: $_scrollWheelDelta");
-      _scrollWheelDelta = 0.0 * _wheelSensitivity;
+      String payload = json.encode({
+        'delta': _scrollWheelDelta.toInt()
+      });
+      bool result = _publisher.sendData('WinMobControl/ScrollMouseWheel', payload);
+      if(result == false) {
+        _logger.info("send scroll wheel delta failed");
+      }
+
+      _scrollWheelDelta = 0.0;
     }
 
     if(_zoomDeltaList.isNotEmpty) {
@@ -170,14 +195,30 @@ class VirtualMouseLogic extends ChangeNotifier{
       double delta = _zoomDeltaList.last - _zoomDeltaList.first;
       delta *= _zoomSensitivity;
       _logger.info("send zoom delta: $delta");
+      String payload = json.encode({
+        'delta': delta.toInt()
+      });
+      bool result = _publisher.sendData('WinMobControl/Zoom', payload);
+      if(result == false) {
+        _logger.info("send zoom delta failed");
+      }
+
       _zoomDeltaList.clear();
     }
 
     if(_mouseMoveDelta.dx != 0.0 || _mouseMoveDelta.dy != 0.0) {
       _logger.info("send mouse move delta: $_mouseMoveDelta");
-      _mouseMoveDelta = const Offset(0.0, 0.0);
       _mouseMoveDelta *= _mouseSensitivity;
-      _logger.info("sens: $_mouseSensitivity");
+      String payload = json.encode({
+        'delta_x': _mouseMoveDelta.dx.toInt(),
+        'delta_y': _mouseMoveDelta.dy.toInt()
+      });
+      bool result = _publisher.sendData('WinMobControl/MoveMouseCursor', payload);
+      if(result == false) {
+        _logger.info("send mouse move delta failed");
+      }
+
+      _mouseMoveDelta = Offset(0.0, 0.0);
     }
   }
 }

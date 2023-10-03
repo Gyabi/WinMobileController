@@ -40,9 +40,10 @@ class _SettingDialogState extends State<SettingDialog> {
     SharedPreferences pref = await SharedPreferences.getInstance();
     setState(() {
       // IPアドレスを取得
-      _ipAddress.text = pref.getString('ipAddress') ?? '';
+      _ipAddress.text = pref.getString('ipAddress') ?? 'localhost';
       // ポート番号を取得
-      _port.text = pref.getInt('port').toString(); 
+      int port = pref.getInt('port') ?? 1883;
+      _port.text = port.toString(); 
       // ホイール感度を取得
       _wheelSensitivity = pref.getDouble('wheelSensitivity') ?? 1.0;
       // ズーム感度を取得

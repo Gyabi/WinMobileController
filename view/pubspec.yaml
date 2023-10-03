@@ -34,6 +34,8 @@ dependencies:
   gesture_x_detector:
   provider: ^6.0.4
   shared_preferences: ^2.2.1
+  mqtt5_client: ^4.0.2
+  uuid: ^4.0.0
 
 
   # The following adds the Cupertino Icons font to your application.

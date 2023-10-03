@@ -3,6 +3,7 @@ import "package:gesture_x_detector/gesture_x_detector.dart";
 import "virtual_mouse_logic.dart";
 import 'package:provider/provider.dart';
 import "setting.dart";
+import 'utils.dart';
 
 // 仮想マウスを表示するページ
 class VirtualMousePage extends StatelessWidget {
@@ -60,22 +61,11 @@ class SettingButton extends StatelessWidget {
       onPressed: () {
         if (logic.isConnected()) {
           // コネクションが確立している場合はメッセージダイアログを表示
-          showDialog(
-            context: context,
-            builder: (_) {
-              return AlertDialog(
-                title: const Text('Error'),
-                content: const Text('Please disconnect before setting.'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('OK'),
-                  )
-                ],
-              );
-            }
+          showAlertDialog(
+            context,
+            title: "Error",
+            content: "Please disconnect before setting.",
+            defaultActionText: "OK"
           );
         }
         else {
@@ -124,11 +114,30 @@ class _ConnectControlWidgetState extends State<ConnectControlWidget> {
               Container(
                 margin: const EdgeInsets.all(10.0),
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (logic.isConnected()) {
-                      logic.deleteConnection();
+                      bool result = logic.deleteConnection();
+                      if(!result) {
+                        // 接続解除失敗時はメッセージダイアログを表示
+                        await showAlertDialog(
+                          context,
+                          title: "Error",
+                          content: "Failed to disconnect.",
+                          defaultActionText: "OK"
+                        );
+                      }
                     } else {
-                      logic.createConnection();
+                      bool result = await logic.createConnection();
+                      if(!result) {
+                        if(!mounted) return;
+                        // 接続失敗時はメッセージダイアログを表示
+                        await showAlertDialog(
+                          context,
+                          title: "Error",
+                          content: "Failed to connect.",
+                          defaultActionText: "OK"
+                        );
+                      }
                     }
                   },
                   child: Text(logic.isConnected() ? 'Disconnect' : 'Connect'),
