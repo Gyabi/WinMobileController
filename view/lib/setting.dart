@@ -1,7 +1,9 @@
 // 設定画面ダイアログを定義
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import "virtual_mouse_logic.dart";
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final _logger = Logger('SettingDialog');
 
@@ -14,19 +16,61 @@ class SettingDialog extends StatefulWidget {
 }
 
 class _SettingDialogState extends State<SettingDialog> {
+  // 各種設定値
   // IPアドレス
-  String _ipAddress = '';
+  TextEditingController _ipAddress = TextEditingController();
   // ポート番号
-  int _port = 0;
-  // ホイール感度スライダの値
+  TextEditingController _port = TextEditingController();
+  // ホイール感度
   double _wheelSensitivity = 1.0;
-  // ズーム感度スライダの値
+  // ズーム感度
   double _zoomSensitivity = 1.0;
-  // マウス感度スライダの値
+  // マウス感度
   double _mouseSensitivity = 1.0;
 
   @override
+  void initState() {
+    super.initState();
+    // 初期化処理
+    _init();
+  }
+
+  // 初期化処理
+  Future<void> _init() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    setState(() {
+      // IPアドレスを取得
+      _ipAddress.text = pref.getString('ipAddress') ?? '';
+      // ポート番号を取得
+      _port.text = pref.getInt('port').toString(); 
+      // ホイール感度を取得
+      _wheelSensitivity = pref.getDouble('wheelSensitivity') ?? 1.0;
+      // ズーム感度を取得
+      _zoomSensitivity = pref.getDouble('zoomSensitivity') ?? 1.0;
+      // マウス感度を取得
+      _mouseSensitivity = pref.getDouble('mouseSensitivity') ?? 1.0;
+    });
+  }
+
+  Future<void> _save() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    // IPアドレスを保存
+    pref.setString('ipAddress', _ipAddress.text);
+    // ポート番号を保存
+    pref.setInt('port', int.parse(_port.text));
+    // ホイール感度を保存
+    pref.setDouble('wheelSensitivity', _wheelSensitivity);
+    // ズーム感度を保存
+    pref.setDouble('zoomSensitivity', _zoomSensitivity);
+    // マウス感度を保存
+    pref.setDouble('mouseSensitivity', _mouseSensitivity);
+  } 
+
+  @override
   Widget build(BuildContext context) {
+    // Providerよりロジッククラスのインスタンスを取得
+    final logic = Provider.of<VirtualMouseLogic>(context, listen: true);
+
     return AlertDialog(
       title: const Text('Setting'),
       content: SingleChildScrollView(
@@ -45,16 +89,13 @@ class _SettingDialogState extends State<SettingDialog> {
                   ),
                   labelText: "Server IP Address"
                 ),
-                onChanged: (value) => {
-                  _logger.info('Server IP Address: $value'),
+                onChanged: (value) {
+                  _logger.info('Server IP Address: $value');
                   setState(() {
-                    _ipAddress = value;
-                  })
+                    _ipAddress.text = value;
+                  });
                 },
-                onEditingComplete: () => {
-                  _logger.info('Server IP Address: $_ipAddress'),
-                  // TODO：保存処理
-                },
+                controller: _ipAddress,
               ),
             ),
 
@@ -62,6 +103,8 @@ class _SettingDialogState extends State<SettingDialog> {
             Container(
               margin: const EdgeInsets.only(bottom: 10.0),
               child: TextField(
+                // 入力は数字だけ許可
+                keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.grey.shade200,
@@ -71,16 +114,13 @@ class _SettingDialogState extends State<SettingDialog> {
                   ),
                   labelText: "Server Port"
                 ),
-                onChanged: (value) => {
-                  _logger.info('Server Port: $value'),
+                onChanged: (value) {
+                  _logger.info('Server Port: $value');
                   setState(() {
-                    _port = int.parse(value);
-                  })
+                    _port.text = value;
+                  });
                 },
-                onEditingComplete: () => {
-                  _logger.info('Server Port: $_port'),
-                  // TODO：保存処理
-                },
+                controller: _port,
               ),
             ),
 
@@ -100,13 +140,6 @@ class _SettingDialogState extends State<SettingDialog> {
                       setState(() {
                         _wheelSensitivity = value;
                       });
-                    },
-                    onChangeEnd: (double value) {
-                      _logger.info('Wheel Sensitivity: $value');
-                      setState(() {
-                        _wheelSensitivity= value;
-                      });
-                      // TODO：保存処理
                     },
                   ),
                   const Text('Wheel Sensitivity'),
@@ -131,14 +164,6 @@ class _SettingDialogState extends State<SettingDialog> {
                         _zoomSensitivity = value;
                       });
                     },
-                    onChangeEnd: (double value) {
-                      _logger.info('Zoom Sensitivity: $value');
-                      setState(() {
-                        _zoomSensitivity = value;
-                      });
-                      // TODO：保存処理
-                    },
-
                   ),
                   const Text('Zoom Sensitivity'),
                 ],
@@ -162,13 +187,6 @@ class _SettingDialogState extends State<SettingDialog> {
                         _mouseSensitivity = value;
                       });
                     },
-                    onChangeEnd: (double value) {
-                      _logger.info('Mouse Sensitivity: $value');
-                      setState(() {
-                        _mouseSensitivity = value;
-                      });
-                      // TODO：保存処理
-                    },
                   ),
                   const Text('Mouse Sensitivity'),
                 ],
@@ -179,7 +197,15 @@ class _SettingDialogState extends State<SettingDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () {
+          onPressed: () async {
+            // 設定値を保存
+            await _save();
+            // ロジッククラスに設定値を反映
+            await logic.readParams();
+
+            if (!mounted) {
+              return;
+            }
             // ダイアログを閉じる
             Navigator.of(context).pop();
           },

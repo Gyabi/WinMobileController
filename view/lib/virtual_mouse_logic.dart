@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import "package:gesture_x_detector/gesture_x_detector.dart";
+import 'package:shared_preferences/shared_preferences.dart';
 
 final _logger = Logger('VirtualMouseLogic');
 
@@ -20,12 +21,41 @@ class VirtualMouseLogic extends ChangeNotifier{
   List<double> _zoomDeltaList = [];
   Offset _mouseMoveDelta = Offset(0.0, 0.0);
 
+  // 各種設定値
+  // IPアドレス
+  String _ipAddress = '';
+  // ポート番号
+  int _port = 0;
+  // ホイール感度
+  double _wheelSensitivity = 1.0;
+  // ズーム感度
+  double _zoomSensitivity = 1.0;
+  // マウス感度
+  double _mouseSensitivity = 1.0;
+
   // constructor
   VirtualMouseLogic() {
+    // 初期化処理
+    readParams();
     // 一定間隔でデータ送信処理を実行
     Timer.periodic(Duration(milliseconds: _duration), (timer) {
       update();
     });
+  }
+
+  // 初期化処理
+  Future readParams() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    // IPアドレスを取得
+    _ipAddress = pref.getString('ipAddress') ?? '';
+    // ポート番号を取得
+    _port = pref.getInt('port') ?? 0; 
+    // ホイール感度を取得
+    _wheelSensitivity = pref.getDouble('wheelSensitivity') ?? 1.0;
+    // ズーム感度を取得
+    _zoomSensitivity = pref.getDouble('zoomSensitivity') ?? 1.0;
+    // マウス感度を取得
+    _mouseSensitivity = pref.getDouble('mouseSensitivity') ?? 1.0;
   }
 
   // mqtt接続
@@ -132,12 +162,13 @@ class VirtualMouseLogic extends ChangeNotifier{
 
     if(_scrollWheelDelta != 0.0) {
       _logger.info("send scroll wheel delta: $_scrollWheelDelta");
-      _scrollWheelDelta = 0.0;
+      _scrollWheelDelta = 0.0 * _wheelSensitivity;
     }
 
     if(_zoomDeltaList.isNotEmpty) {
       // リストの最後の要素から最初の要素を引いた値を送信
       double delta = _zoomDeltaList.last - _zoomDeltaList.first;
+      delta *= _zoomSensitivity;
       _logger.info("send zoom delta: $delta");
       _zoomDeltaList.clear();
     }
@@ -145,6 +176,8 @@ class VirtualMouseLogic extends ChangeNotifier{
     if(_mouseMoveDelta.dx != 0.0 || _mouseMoveDelta.dy != 0.0) {
       _logger.info("send mouse move delta: $_mouseMoveDelta");
       _mouseMoveDelta = const Offset(0.0, 0.0);
+      _mouseMoveDelta *= _mouseSensitivity;
+      _logger.info("sens: $_mouseSensitivity");
     }
   }
 }

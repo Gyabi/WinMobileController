@@ -27,20 +27,8 @@ class VirtualMousePage extends StatelessWidget {
               ),
             ),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          actions: [
-            IconButton(
-              onPressed: () {
-                // 設定ダイアログを表示
-                showDialog(
-                  context: context,
-                  builder: (_) {
-                    return const SettingDialog();
-                  }
-                );
-              },
-              icon: const Icon(Icons.settings),
-              color: Theme.of(context).colorScheme.primary,
-            ),
+          actions: const [
+            SettingButton(),
           ],
         ),
         // ボディ
@@ -60,6 +48,34 @@ class VirtualMousePage extends StatelessWidget {
   }
 }
 
+// 設定ダイアログ表示ボタン
+class SettingButton extends StatelessWidget {
+  const SettingButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () {
+        // 設定ダイアログを表示
+        showSettingDialog(context);
+      },
+      icon: const Icon(Icons.settings),
+      color: Theme.of(context).colorScheme.primary,
+    );
+  }
+
+  void showSettingDialog(BuildContext context) {
+    final logic = Provider.of<VirtualMouseLogic>(context, listen: false);
+
+    showDialog(
+      context: context,
+      builder: (_) {
+        // ダイアログにProviderを適応させる場合はChangeNotifierProvider.valueを使う
+        return ChangeNotifierProvider.value(value: logic, child: const SettingDialog());
+      }
+    );
+  }
+}
 
 
 // 接続制御UI（ボタンおよび状態表示テキスト）
