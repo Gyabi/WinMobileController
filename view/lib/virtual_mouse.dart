@@ -54,10 +54,34 @@ class SettingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final logic = Provider.of<VirtualMouseLogic>(context, listen: false);
+
     return IconButton(
       onPressed: () {
-        // 設定ダイアログを表示
-        showSettingDialog(context);
+        if (logic.isConnected()) {
+          // コネクションが確立している場合はメッセージダイアログを表示
+          showDialog(
+            context: context,
+            builder: (_) {
+              return AlertDialog(
+                title: const Text('Error'),
+                content: const Text('Please disconnect before setting.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('OK'),
+                  )
+                ],
+              );
+            }
+          );
+        }
+        else {
+          // 設定ダイアログを表示
+          showSettingDialog(context);
+        }
       },
       icon: const Icon(Icons.settings),
       color: Theme.of(context).colorScheme.primary,
