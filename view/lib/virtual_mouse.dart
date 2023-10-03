@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import "package:gesture_x_detector/gesture_x_detector.dart";
 import "virtual_mouse_logic.dart";
 import 'package:provider/provider.dart';
+import "setting.dart";
 
 // 仮想マウスを表示するページ
 class VirtualMousePage extends StatelessWidget {
@@ -26,6 +27,21 @@ class VirtualMousePage extends StatelessWidget {
               ),
             ),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          actions: [
+            IconButton(
+              onPressed: () {
+                // 設定ダイアログを表示
+                showDialog(
+                  context: context,
+                  builder: (_) {
+                    return const SettingDialog();
+                  }
+                );
+              },
+              icon: const Icon(Icons.settings),
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ],
         ),
         // ボディ
         body: const SingleChildScrollView(
