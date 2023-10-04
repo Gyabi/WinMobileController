@@ -15,8 +15,11 @@ pem/win-client/*
 !pem/win-client/win-client_sample.crt
 !pem/win-client/win-client_sample.key
 !pem/win-client/win-client_sample.csr
+!pem/win-client/win-client_sample.pem
 
 !pem/mob-client
 pem/mob-client/*
 !pem/mob-client/mob-client_sample.crt
 !pem/mob-client/mob-client_sample.key
+!pem/mob-client/mob-client_sample.csr
+!pem/mob-client/mob-client_sample.pem

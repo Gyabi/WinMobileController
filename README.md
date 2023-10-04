@@ -59,6 +59,10 @@ CA署名実行
 ```
 openssl x509 -req -in <winまたはmob>-client.csr -CA ../ca/ca.crt -CAkey ../ca/ca.key -CAcreateserial -out <winまたはmob>-client.crt -days 1826
 ```
+PEM生成
+```
+cat <winまたはmob>-client.key <winまたはmob>-client.crt > <winまたはmob>-client.pem
+```
 
 ### 証明書の配置
 #### Mosquitto
