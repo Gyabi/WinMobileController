@@ -61,7 +61,38 @@ openssl x509 -req -in <winまたはmob>-client.csr -CA ../ca/ca.crt -CAkey ../ca
 ```
 
 ### 証明書の配置
+#### Mosquitto
+```
+C:\Program Files\mosquitto\certs　
+```
+直下にserver.crt，server.key，ca.crtを格納する。
+
 ### Mosquitto設定変更
+```
+C:\Program Files\mosquitto\mosquitto.conf
+```
+上記ファイルを修正します。
+```
+# ポート待ち受け
+listener 8883
+# 各種証明書
+cafile C:/Program Files/mosquitto/certs/ca.crt
+keyfile C:/Program Files/mosquitto/certs/server.key
+certfile C:/Program Files/mosquitto/certs/server.crt
+# クライアント証明書の検証
+require_certificate true
+use_identity_as_username true
+```
+
+※TLS対応せずに単純に外部から接続可能にする場合
+```
+# ポート待ち受け
+listener 1883
+# ログイン認証無効化
+allow_anonymous true
+```
+### ファイアウォール設定
+ポート番号に対してインバウンドTCPの穴あけを行う。
 
 ## ビルド
 *
