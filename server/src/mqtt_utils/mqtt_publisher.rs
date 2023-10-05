@@ -11,20 +11,21 @@ use log::{debug, error};
 /// * `topic` - パブリッシュするトピック
 /// * `payloads` - パブリッシュするメッセージのリスト
 /// * `interval` - メッセージ送信間隔
-/// * `use_ssl` - SSLを使用するかどうか
+/// * `ca_path` - CA証明書のパス
+/// * `client_cert_path` - クライアント証明書のパス
 pub fn start_publish(
     host: String,
     port: u16,
     topic: String,
     payloads: Vec<Vec<u8>>,
     interval: u64,
-    use_ssl: bool,
+    ca_path: String,
+    client_cert_path: String,
 ) -> thread::JoinHandle<()> {
     // 設定値を作成
     let create_opts = CreateOptionsBuilder::new()
         .server_uri(format!(
-            "{}://{}:{}",
-            if use_ssl { "mqtts" } else { "mqtt" },
+            "mqtts://{}:{}",
             host,
             port
         ))
@@ -41,6 +42,13 @@ pub fn start_publish(
     let conn_opts = mqtt::ConnectOptionsBuilder::with_mqtt_version(MQTT_VERSION_5)
         .keep_alive_interval(Duration::from_secs(20)) // 20秒間隔でPINGREQを送信
         .clean_start(true) //一度接続が切れたときに、サーバー側に残っているメッセージを削除する
+        .ssl_options(
+            // SSL設定
+            mqtt::SslOptionsBuilder::new()
+                .trust_store(ca_path).unwrap()
+                .key_store(client_cert_path).unwrap()
+                .finalize(),
+        )
         .finalize();
 
     thread::spawn(move || {

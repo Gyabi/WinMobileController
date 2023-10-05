@@ -8,7 +8,7 @@ use serde_json;
 
 pub fn pub_sample() {
     let host = "localhost";
-    let port = 1883;
+    let port = 8883;
     let topic = "WinMobControl/PushMouseButton";
     let payloads = vec![
         serde_json::to_vec(
@@ -17,16 +17,19 @@ pub fn pub_sample() {
             }
         ).unwrap(),
     ];
+    let ca_path = "C:/Users/buyuu/Programming/000_OSS/WinMobileController/pem/ca/ca.crt".to_string();
+    let client_cert_path = "C:/Users/buyuu/Programming/000_OSS/WinMobileController/pem/mob-client/mob-client.pem".to_string();
+    // let client_cert_path = "C:/Users/buyuu/Programming/000_OSS/WinMobileController/pem/win-client/win-client.pem".to_string();
     // let payloads = vec![vec![0x01, 0x02, 0x03], vec![0x04, 0x05, 0x06]];
     let interval = 1000;
-    let use_ssl = false;
     let handle = mqtt_publisher::start_publish(
         host.to_string(),
         port,
         topic.to_string(),
         payloads,
         interval,
-        use_ssl,
+        ca_path,
+        client_cert_path,
     );
     handle.join().unwrap();
 }

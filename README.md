@@ -43,14 +43,13 @@ openssl x509 -req -in server.csr -CA ../ca/ca.crt -CAkey ../ca/ca.key -CAcreates
 ### クライアント証明書
 PCとスマホ用に2つのクライアント証明書を作ります。
 ./pem/win-clientフォルダ、./pem/mob-client内フォルダにて以下のコマンドを実行します。
-※クライアント証明書のCommon Nameは適当に識別可能な文字列を入れておけば良いです。
 秘密鍵生成
 ```
 openssl genrsa -out <winまたはmob>-client.key 2048
 ```
 
 CSR発行
-※Common Nameにはブローカを配置する端末のIPアドレスorドメインを入力してください。
+※クライアント証明書のCommon Nameは適当に識別可能な文字列を入れておけば良いです。
 ```
 openssl req -new -out <winまたはmob>-client.csr -key <winまたはmob>-client.key
 ```

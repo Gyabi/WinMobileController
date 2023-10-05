@@ -17,7 +17,7 @@ fn main() {
     // - WinMobControl/Zoom
 
     let host = "localhost";
-    let port = 1883;
+    let port = 8883;
     let topics = vec![
         "WinMobControl/PushMouseButton".to_string(),
         "WinMobControl/ScrollMouseWheel".to_string(),
@@ -27,6 +27,8 @@ fn main() {
     let qoss = vec![
         1,1,1,1
     ];
+    let ca_path = "C:/Users/buyuu/Programming/000_OSS/WinMobileController/pem/ca/ca.crt".to_string();
+    let client_cert_path = "C:/Users/buyuu/Programming/000_OSS/WinMobileController/pem/win-client/win-client.pem".to_string();
 
     // mqttサブスクライバ起動    
     let handle_sub = mqtt_subscriber::start_subscribe(
@@ -35,16 +37,16 @@ fn main() {
         topics.clone(),
         qoss.clone(),
         call_back,
-        false,
+        ca_path,
+        client_cert_path,
     );
     
-    handle_sub.join().unwrap();
-
     // // 1秒スリープ
     // std::thread::sleep(std::time::Duration::from_millis(1000));
     // // mqttパブリッシャー起動
     // samples::pub_sample();
     
+    handle_sub.join().unwrap();
 
     // samples::win_sample();
 }
