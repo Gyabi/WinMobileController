@@ -23,3 +23,9 @@ pem/mob-client/*
 !pem/mob-client/mob-client_sample.key
 !pem/mob-client/mob-client_sample.csr
 !pem/mob-client/mob-client_sample.pem
+
+
+view/assets/ca.crt
+view/assets/mob-client.pem
+view/assets/mob-client.key
+view/assets/mob-client.crt

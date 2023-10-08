@@ -16,7 +16,7 @@ fn main() {
     // - WinMobControl/MoveMouseCursor
     // - WinMobControl/Zoom
 
-    let host = "localhost";
+    let host = "172.16.80.132";
     let port = 8883;
     let topics = vec![
         "WinMobControl/PushMouseButton".to_string(),

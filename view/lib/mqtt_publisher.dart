@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:mqtt5_client/mqtt5_server_client.dart';
 import 'package:uuid/uuid.dart';
@@ -32,6 +33,28 @@ class MQTTPublisher {
     _client = MqttServerClient.withPort(_ipAddress, const Uuid().v1(), _port);
     _client?.logging(on: false);
     _client?.keepAlivePeriod = 20;
+
+    // SSL設定
+    _client?.secure = true;
+    SecurityContext securityContext = SecurityContext.defaultContext;
+    // CA証明書をassetsから読み込み（assets/ca.crt）
+    final caFile = await rootBundle.load('assets/ca.crt');
+    // securityContextへ登録
+    securityContext.setTrustedCertificatesBytes(caFile.buffer.asUint8List());
+    // 秘密鍵をassetから読みこみ（assets/mob-client.key）
+    final clientKeyFile = await rootBundle.load('assets/mob-client.key');
+    // securityContextへ登録
+    securityContext.usePrivateKeyBytes(clientKeyFile.buffer.asUint8List());
+    // クライアント証明書をassetsから読み込み（assets/mob-client.pem）
+    final clientCertFile = await rootBundle.load('assets/mob-client.crt');
+    securityContext.useCertificateChainBytes(clientCertFile.buffer.asUint8List());
+    _client?.securityContext = securityContext;
+
+    // これを有効化すると問答無用で接続できるようになる
+    // _client?.onBadCertificate = (dynamic certificate) {
+    //   _logger.info('Bad certificate');
+    //   return true;
+    // };
 
     // 接続時設定
     final connMess = MqttConnectMessage()

@@ -28,16 +28,12 @@ openssl req -new -x509 -days 1826 -key ca.key -out ca.crt
 ```
 openssl genrsa -out server.key 2048
 ```
-
-CSR発行
-※Common Nameにはブローカを配置する端末のIPアドレスorドメインを入力してください。
+CSR発行＆CA署名実行
+※CommonNameには適当な値を入れてok
+※subjectAltName属性にブローカを公開するIPアドレスを指定してください。
+※クライアント側が証明書を判定する際にv3のSANフィールドのIPアドレスを参照するため必須
 ```
-openssl req -new -out server.csr -key server.key
-```
-
-CA署名実行
-```
-openssl x509 -req -in server.csr -CA ../ca/ca.crt -CAkey ../ca/ca.key -CAcreateserial -out server.crt -days 1826
+openssl req -x509 -newkey rsa:2048 -keyout server.key -out server.crt -days 1826 -addext "subjectAltName = IP:<ここにブローカのIPを指定>" -CA ../ca/ca.crt -CAkey ../ca/ca.key -nodes
 ```
 
 ### クライアント証明書
@@ -48,15 +44,11 @@ PCとスマホ用に2つのクライアント証明書を作ります。
 openssl genrsa -out <winまたはmob>-client.key 2048
 ```
 
-CSR発行
-※クライアント証明書のCommon Nameは適当に識別可能な文字列を入れておけば良いです。
+CSR発行＆CA署名実行
+※CommonNameには適当な値を入れてok
+※クライアント証明書ではIPアドレスを指定できないので入れない。
 ```
-openssl req -new -out <winまたはmob>-client.csr -key <winまたはmob>-client.key
-```
-
-CA署名実行
-```
-openssl x509 -req -in <winまたはmob>-client.csr -CA ../ca/ca.crt -CAkey ../ca/ca.key -CAcreateserial -out <winまたはmob>-client.crt -days 1826
+openssl req -x509 -newkey rsa:2048 -keyout <winまたはmob>-client.key -out <winまたはmob>-client.crt -days 1826 -CA ../ca/ca.crt -CAkey ../ca/ca.key -nodes
 ```
 PEM生成
 ```
