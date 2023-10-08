@@ -90,7 +90,16 @@ allow_anonymous true
 ポート番号に対してインバウンドTCPの穴あけを行う。
 
 ## ビルド
-*
+### Flutter
+以下コマンドでapkファイルを生成します。
+```
+flutter build apk
+```
+
+USB接続して以下コマンドでインストールします。
+```
+flutter install build\app\outputs\flutter-apk\app-release.apk
+```
 
 ## 管理者権限付与
 *
