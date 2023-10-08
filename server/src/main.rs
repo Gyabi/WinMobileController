@@ -8,7 +8,8 @@ use logic::call_back;
 
 fn main() {
     // ログ出力設定
-    env_logger::init_from_env(env_logger::Env::default().default_filter_or("debug"));
+    env_logger::init_from_env(env_logger::Env::default().default_filter_or("off"));
+    // env_logger::init_from_env(env_logger::Env::default().default_filter_or("debug"));
 
     // 許容するトピックは以下
     // - WinMobControl/PushMouseButton
