@@ -4,7 +4,7 @@ import "package:logging/logging.dart";
 
 void main() {
   // ログ設定
-  Logger.root.level = Level.ALL;
+  Logger.root.level = Level.OFF;
   Logger.root.onRecord.listen((record) {
     print('${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}');
   });
