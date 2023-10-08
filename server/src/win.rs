@@ -54,7 +54,7 @@ pub fn get_mouse_wheel_input(delta: i32) -> INPUT {
     input
 }
 
-
+#[derive(Copy, Clone)]
 pub enum MouseClickType {
     RIGHT,
     LEFT,
