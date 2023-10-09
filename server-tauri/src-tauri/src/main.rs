@@ -4,6 +4,7 @@
 )]
 mod mqtt_pub_manager;
 mod setting;
+mod win_service;
 
 use lazy_static::lazy_static;
 use std::sync::{Arc, Mutex};
@@ -11,19 +12,28 @@ use log::{info, error};
 
 use mqtt_pub_manager::MqttPubManager;
 use setting::{Parameter, read_setting, save_setting};
+use win_service::{start_service, stop_service};
 
 #[tauri::command]
 async fn start_mosquitto() -> Result<(), String> {
   info!("Starting mosquitto");
   
-  // Ok(())
-  Err("Error".to_string())
+  let result = start_service("Mosquitto Broker");
+  match result {
+    Ok(_) => Ok(()),
+    Err(err) => Err(err.to_string()),
+  }
 }
 
 #[tauri::command]
 async fn stop_mosquitto() -> Result<(), String> {
   info!("Stopping mosquitto");  
-  Err("Error".to_string())
+
+  let result = stop_service("Mosquitto Broker");
+  match result {
+    Ok(_) => Ok(()),
+    Err(err) => Err(err.to_string()),
+  }
 }
 
 #[tauri::command]
