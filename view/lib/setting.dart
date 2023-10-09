@@ -27,6 +27,8 @@ class _SettingDialogState extends State<SettingDialog> {
   double _zoomSensitivity = 1.0;
   // マウス感度
   double _mouseSensitivity = 1.0;
+    // 送信間隔[ms]
+  TextEditingController _duration = TextEditingController();
 
   @override
   void initState() {
@@ -50,6 +52,9 @@ class _SettingDialogState extends State<SettingDialog> {
       _zoomSensitivity = pref.getDouble('zoomSensitivity') ?? 1.0;
       // マウス感度を取得
       _mouseSensitivity = pref.getDouble('mouseSensitivity') ?? 1.0;
+      // 送信間隔[ms]
+      int duration = pref.getInt('duration') ?? 100;
+      _duration.text = duration < 10 ? 10.toString() : duration.toString();
     });
   }
 
@@ -58,13 +63,15 @@ class _SettingDialogState extends State<SettingDialog> {
     // IPアドレスを保存
     pref.setString('ipAddress', _ipAddress.text);
     // ポート番号を保存
-    pref.setInt('port', int.parse(_port.text));
+    pref.setInt('port', int.tryParse(_port.text) ?? 1883);
     // ホイール感度を保存
     pref.setDouble('wheelSensitivity', _wheelSensitivity);
     // ズーム感度を保存
     pref.setDouble('zoomSensitivity', _zoomSensitivity);
     // マウス感度を保存
     pref.setDouble('mouseSensitivity', _mouseSensitivity);
+    // 送信間隔[ms]を保存
+    pref.setInt('duration', int.tryParse(_duration.text) ?? 100);
   } 
 
   @override
@@ -122,6 +129,31 @@ class _SettingDialogState extends State<SettingDialog> {
                   });
                 },
                 controller: _port,
+              ),
+            ),
+
+            // 送信間隔入力
+            Container(
+              margin: const EdgeInsets.only(bottom: 10.0),
+              child: TextField(
+                // 入力は数字だけ許可
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade200,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                  labelText: "Duration"
+                ),
+                onChanged: (value) {
+                  _logger.info('Duration: $value');
+                  setState(() {
+                    _duration.text = value;
+                  });
+                },
+                controller: _duration,
               ),
             ),
 
