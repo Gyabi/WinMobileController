@@ -17,9 +17,7 @@ tauri-build = { version = "1.2.1", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.2.2", features = ["dialog-message"] }
-paho-mqtt = "0.12.2"
-# paho-mqtt = { version = "0.12", features=["vendored-ssl"] }
+tauri = { version = "1.2.2", features = ["dialog-ask", "dialog-message"] }
 uuid = { version = "1.4.1", features = ["v4"] }
 futures = { version = "0.3", default-features = false }
 log = "0.4.14"
@@ -30,11 +28,14 @@ windows = { version = "0.48", features = [
     "Win32_UI_Input_KeyboardAndMouse",
     "Win32_Foundation",
 ] }
+lazy_static = "1.4.0"
+confy = { version = "0.5", features = ["yaml_conf"], default-features = false }
+# paho-mqtt = "0.12.2"
 
 [features]
 # by default Tauri runs in production mode
 # when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL
-default = [ "custom-protocol" ]
+default = ["custom-protocol"]
 # this feature is used for production builds where `devPath` points to the filesystem
 # DO NOT remove this
-custom-protocol = [ "tauri/custom-protocol" ]
+custom-protocol = ["tauri/custom-protocol"]
