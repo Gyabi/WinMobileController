@@ -30,7 +30,7 @@ windows = { version = "0.48", features = [
 ] }
 lazy_static = "1.4.0"
 confy = { version = "0.5", features = ["yaml_conf"], default-features = false }
-# paho-mqtt = "0.12.2"
+paho-mqtt = "0.12.2"
 
 [features]
 # by default Tauri runs in production mode
