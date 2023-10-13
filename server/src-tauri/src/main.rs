@@ -14,6 +14,12 @@ use mqtt_pub_manager::MqttPubManager;
 use setting::{Parameter, read_setting, save_setting};
 use win_service::{start_service, stop_service};
 
+/// Mosquittoを開始する
+/// 
+/// # Returns
+/// 
+/// * `Ok(())` - 成功
+/// * `Err(String)` - 失敗
 #[tauri::command]
 async fn start_mosquitto() -> Result<(), String> {
   info!("Starting mosquitto");
@@ -25,6 +31,12 @@ async fn start_mosquitto() -> Result<(), String> {
   }
 }
 
+/// Mosquittoを停止する
+/// 
+/// # Returns
+/// 
+/// * `Ok(())` - 成功
+/// * `Err(String)` - 失敗
 #[tauri::command]
 async fn stop_mosquitto() -> Result<(), String> {
   info!("Stopping mosquitto");  
@@ -36,6 +48,12 @@ async fn stop_mosquitto() -> Result<(), String> {
   }
 }
 
+/// MQTTサーバーを開始する
+/// 
+/// # Returns
+/// 
+/// * `Ok(())` - 成功
+/// * `Err(String)` - 失敗
 #[tauri::command]
 async fn start_server() -> Result<(), String> {
   info!("Starting server");
@@ -54,6 +72,12 @@ async fn start_server() -> Result<(), String> {
   // Err("Error".to_string())
 }
 
+/// MQTTサーバーを停止する
+/// 
+/// # Returns
+/// 
+/// * `Ok(())` - 成功
+/// * `Err(String)` - 失敗
 #[tauri::command]
 async fn stop_server() -> Result<(), String> {
   info!("Stopping server");
@@ -64,6 +88,12 @@ async fn stop_server() -> Result<(), String> {
   // Err("Error".to_string())
 }
 
+/// 設定パラメータを取得する
+/// 
+/// # Returns
+/// 
+/// * `Ok(Parameter)` - 成功
+/// * `Err(String)` - 失敗
 #[tauri::command]
 fn get_setting() -> Result<Parameter, String> {
   info!("Getting setting");
@@ -75,6 +105,16 @@ fn get_setting() -> Result<Parameter, String> {
   }
 }
 
+/// 設定パラメータを保存する
+/// 
+/// # Arguments
+/// 
+/// * `parameter` - 設定パラメータ
+/// 
+/// # Returns
+/// 
+/// * `Ok(())` - 成功
+/// * `Err(String)` - 失敗
 #[tauri::command(rename_all = "snake_case")]
 fn set_setting(parameter: Parameter) -> Result<(), String> {
   info!("Setting setting");

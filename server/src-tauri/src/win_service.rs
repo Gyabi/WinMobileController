@@ -1,5 +1,15 @@
 use std::process::Command;
 
+/// 指定したWindowsサービスを開始する
+/// 
+/// # Arguments
+/// 
+/// * `service_name` - サービス名
+/// 
+/// # Returns
+/// 
+/// * `Ok(())` - 成功
+/// * `Err(String)` - 失敗
 pub fn start_service(service_name: &str) -> Result<(), String> {
     let output = Command::new("cmd")
         .args(&["/C", "net", "start", service_name])
@@ -16,6 +26,16 @@ pub fn start_service(service_name: &str) -> Result<(), String> {
     }
 }
 
+/// 指定したWindowsサービスを停止する
+/// 
+/// # Arguments
+/// 
+/// * `service_name` - サービス名
+/// 
+/// # Returns
+/// 
+/// * `Ok(())` - 成功
+/// * `Err(String)` - 失敗
 pub fn stop_service(service_name: &str) -> Result<(), String> {
     let output = Command::new("cmd")
         .args(&["/C", "net", "stop", service_name])
