@@ -158,7 +158,7 @@ lazy_static! {
 
 fn main() {
   // ログ出力設定
-  env_logger::init_from_env(env_logger::Env::default().default_filter_or("debug"));
+  env_logger::init_from_env(env_logger::Env::default().default_filter_or("off"));
 
   tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![start_mosquitto, stop_mosquitto, start_server, stop_server, get_setting, set_setting])
