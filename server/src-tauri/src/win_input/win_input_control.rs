@@ -1,6 +1,15 @@
 use windows::{Win32::Foundation::* , Win32::UI::Input::KeyboardAndMouse::*};
 
-// 入力実行
+/// 引数として入力した入力操作を実行する
+/// 
+/// # Arguments
+/// 
+/// * `inputs` - 入力操作
+/// 
+/// # Returns
+/// 
+/// * `Ok(())` - 成功
+/// * `Err(WIN32_ERROR)` - 失敗
 pub fn execute_inputs(inputs: &[INPUT]) -> Result<(), WIN32_ERROR>{
     unsafe {
         SendInput(&inputs, std::mem::size_of::<INPUT>() as i32);
@@ -16,7 +25,16 @@ pub fn execute_inputs(inputs: &[INPUT]) -> Result<(), WIN32_ERROR>{
 }
 
 
-// マウス移動入力
+/// マウスの移動命令を生成
+/// 
+/// # Arguments
+/// 
+/// * `x` - X座標移動量
+/// * `y` - Y座標移動量
+/// 
+/// # Returns
+/// 
+/// * `INPUT` - マウス移動命令
 pub fn get_mouse_move_input(x: i32, y: i32) -> INPUT {
     let input = INPUT {
         r#type: INPUT_MOUSE,
@@ -35,7 +53,15 @@ pub fn get_mouse_move_input(x: i32, y: i32) -> INPUT {
     input
 }
 
-// マウスホイール入力
+/// マウスホイール命令を生成
+/// 
+/// # Arguments
+/// 
+/// * `delta` - ホイール回転量
+/// 
+/// # Returns
+/// 
+/// * `INPUT` - マウスホイール命令
 pub fn get_mouse_wheel_input(delta: i32) -> INPUT {
     let input = INPUT {
         r#type: INPUT_MOUSE,
@@ -54,6 +80,13 @@ pub fn get_mouse_wheel_input(delta: i32) -> INPUT {
     input
 }
 
+/// マウスクリック種別
+/// 
+/// # Variants
+/// 
+/// * `RIGHT` - 右クリック
+/// * `LEFT` - 左クリック
+/// * `MIDDLE` - ホイールクリック
 #[derive(Copy, Clone)]
 pub enum MouseClickType {
     RIGHT,
@@ -61,7 +94,15 @@ pub enum MouseClickType {
     MIDDLE,
 }
 
-// マウスクリック押下入力
+/// マウスクリック押下入力命令を生成
+/// 
+/// # Arguments
+/// 
+/// * `click_type` - マウスクリック種別
+/// 
+/// # Returns
+/// 
+/// * `INPUT` - マウスクリック押下入力命令
 pub fn get_mouse_click_down_input(click_type: MouseClickType) -> INPUT {
     let input = INPUT {
         r#type: INPUT_MOUSE,
@@ -84,7 +125,15 @@ pub fn get_mouse_click_down_input(click_type: MouseClickType) -> INPUT {
     input
 }
 
-// マウスクリック解放入力
+/// マウスクリック解放入力命令を生成
+/// 
+/// # Arguments
+/// 
+/// * `click_type` - マウスクリック種別
+/// 
+/// # Returns
+/// 
+/// * `INPUT` - マウスクリック解放入力命令
 pub fn get_mouse_click_up_input(click_type: MouseClickType) -> INPUT {
     let input = INPUT {
         r#type: INPUT_MOUSE,
@@ -107,8 +156,15 @@ pub fn get_mouse_click_up_input(click_type: MouseClickType) -> INPUT {
     input
 }
 
-// キーボード関連は動作が安定しないので一旦コメントアウト
-// キーボード押下入力
+/// キーボード入力命令を生成
+/// 
+/// # Arguments
+/// 
+/// * `key_code` - キーコード
+/// 
+/// # Returns
+/// 
+/// * `INPUT` - キーボード入力命令
 pub fn get_key_down_input(key_code: VIRTUAL_KEY) -> INPUT {
     let input = INPUT{
         r#type: INPUT_KEYBOARD,
@@ -125,7 +181,16 @@ pub fn get_key_down_input(key_code: VIRTUAL_KEY) -> INPUT {
 
     input
 }
-// キーボード解放入力
+
+/// キーボード解放入力命令を生成
+/// 
+/// # Arguments
+/// 
+/// * `key_code` - キーコード
+/// 
+/// # Returns
+/// 
+/// * `INPUT` - キーボード解放入力命令
 pub fn get_key_up_input(key_code: VIRTUAL_KEY) -> INPUT {
     let input = INPUT{
         r#type: INPUT_KEYBOARD,
