@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="./doc/img/title.drawio.svg">
+    <img src="./doc/img/title.png">
 </div>
 
 # WinMobileController
