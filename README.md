@@ -1,8 +1,8 @@
-<div style="text-align: center;">
-    <h2 style="display: inline-block;">WinMobileController</h2>
-    <img src="./doc/img/icon.png" style="display: inline-block;" width="20">
+<div align="center">
+    <img src="./doc/img/title.drawio.svg">
 </div>
 
+# WinMobileController
 windows端末をモバイル端末からマウスキーボード操作するためのアプリケーション
 # SystemDesign
 ![alt](./doc/img/SystemDesign.drawio.svg)
