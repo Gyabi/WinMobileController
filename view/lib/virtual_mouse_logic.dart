@@ -14,7 +14,7 @@ class VirtualMouseLogic extends ChangeNotifier{
   // MQTTパブリッシャー
   final MQTTPublisher _publisher = MQTTPublisher();
   // 送信間隔[ms]
-  final int _duration = 100;
+  int _duration = 100;
   // 各種処理に対応するデータ保存用変数
   bool _isPushLeftButton = false;
   bool _isPushWheelButton = false;
@@ -37,12 +37,15 @@ class VirtualMouseLogic extends ChangeNotifier{
 
   // constructor
   VirtualMouseLogic() {
-    // 初期化処理
-    readParams();
-    // 一定間隔でデータ送信処理を実行
-    Timer.periodic(Duration(milliseconds: _duration), (timer) {
-      update();
-    });
+    // 関数定義してそのまま実行
+    () async {
+      // 初期化処理
+      await readParams();
+      // 一定間隔でデータ送信処理を実行
+      Timer.periodic(Duration(milliseconds: _duration), (timer) {
+        update();
+      });
+    }();
   }
 
   // 初期化処理
@@ -58,6 +61,10 @@ class VirtualMouseLogic extends ChangeNotifier{
     _zoomSensitivity = pref.getDouble('zoomSensitivity') ?? 1.0;
     // マウス感度を取得
     _mouseSensitivity = pref.getDouble('mouseSensitivity') ?? 1.0;
+    // 通信レート
+    int duration = pref.getInt('duration') ?? 100;
+    // 下限を10として設定
+    _duration = duration < 10 ? 10 : duration;
   }
 
   // mqtt接続

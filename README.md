@@ -9,6 +9,13 @@ windows端末をモバイル端末からマウスキーボード操作するた�
 ## Mosquittoのインストール
 * 以下のリンクよりMosquittoをインストールしてください。
 https://mosquitto.org/download/
+## OpenSSLのインストール
+* 以下のリンクよりOpenSSLをインストールしてください。
+https://slproweb.com/products/Win32OpenSSL.html
+
+* 以下のpathを通してください
+set OPENSSL_DIR=C:\OpenSSL-Win64
+※おそらく微妙にinstallされるパスがちがうので適宜変更
 
 ## TLS対応
 ### 自己認証局
@@ -90,7 +97,16 @@ allow_anonymous true
 ポート番号に対してインバウンドTCPの穴あけを行う。
 
 ## ビルド
-*
+### Flutter
+以下コマンドでapkファイルを生成します。
+```
+flutter build apk
+```
+
+USB接続して以下コマンドでインストールします。
+```
+flutter install build\app\outputs\flutter-apk\app-release.apk
+```
 
 ## 管理者権限付与
 *

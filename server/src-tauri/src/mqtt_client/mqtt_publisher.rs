@@ -13,7 +13,7 @@ use log::{debug, error};
 /// * `interval` - メッセージ送信間隔
 /// * `ca_path` - CA証明書のパス
 /// * `client_cert_path` - クライアント証明書のパス
-pub fn start_publish(
+fn start_publish(
     host: String,
     port: u16,
     topic: String,
