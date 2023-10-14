@@ -1,4 +1,7 @@
-# WinMobileController
+<div style="text-align: center;">
+    <h2 style="display: inline-block;">WinMobileController</h2>
+    <img src="./doc/img/icon.png" style="display: inline-block;" width="20">
+</div>
 
 windows端末をモバイル端末からマウスキーボード操作するためのアプリケーション
 # SystemDesign
@@ -69,6 +72,12 @@ C:\Program Files\mosquitto\certs　
 ```
 直下にserver.crt，server.key，ca.crtを格納する。
 
+#### Flutter
+```
+view/assets
+```
+Flutter側のコードではアプリケーション内部に証明書を組み込む。よって上記pathへca.crt, mob-client.crt, mob-client.keyを格納する。
+
 ### Mosquitto設定変更
 ```
 C:\Program Files\mosquitto\mosquitto.conf
@@ -107,17 +116,24 @@ USB接続して以下コマンドでインストールします。
 ```
 flutter install build\app\outputs\flutter-apk\app-release.apk
 ```
+### tauri
+以下コマンドでmsiファイルを生成します。
+```
+cargo tauri build
+```
+
+生成したmsiファイルを使ってinstallする。
 
 ## 管理者権限付与
-*
-# Start App
-## バッチの実行
-* bat/start_mosquitto.bat　を管理者権限で実行する。
+インストールしたtauri製のwindowsアプリのプロパティから常に管理者権限で実行するように設定する。
 
+# Start App
 ## Windowsサイド起動
 * ビルド済みのexeファイルを実行する。Setupで管理者権限を付与しているので自動的に管理者実行になる。
 
 ## Mobileサイド起動
 * モバイル端末にインストールしたアプリを実行する。
+
+
 # Auther
 * Kano
