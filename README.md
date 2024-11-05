@@ -3,137 +3,106 @@
 </div>
 
 # WinMobileController
-windows端末をモバイル端末からマウスキーボード操作するためのアプリケーション
-# SystemDesign
-![alt](./doc/img/SystemDesign.drawio.svg)
-# Setup
-## ソースコードのクローン
-* 本リポジトリをCloneしてください。
-## Mosquittoのインストール
-* 以下のリンクよりMosquittoをインストールしてください。
-https://mosquitto.org/download/
-## OpenSSLのインストール
-* 以下のリンクよりOpenSSLをインストールしてください。
-https://slproweb.com/products/Win32OpenSSL.html
 
-* 以下のpathを通してください
-set OPENSSL_DIR=C:\OpenSSL-Win64
-※おそらく微妙にinstallされるパスがちがうので適宜変更
+WinMobileControllerは、Windows端末をモバイル端末からマウス操作するためのアプリケーションです。
 
-## TLS対応
-### 自己認証局
-./pem/caフォルダ内にて以下のコマンドを実行します。
-秘密鍵の生成
-```
-openssl genrsa -des3 -out ca.key
-```
-CA証明書の生成
-```
-openssl req -new -x509 -days 1826 -key ca.key -out ca.crt
-```
+<div style="display: flex; flex-wrap: wrap; justify-content: center;">
+    <img src="./doc/img/win_app.jpg" alt="Image 1" width="400" style="margin: 5px;">
+    <img src="./doc/img/win_app_setting.jpg" alt="Image 2" width="400" style="margin: 5px;">
+    <img src="./doc/img/android_app.jpg" alt="Image 3" width="400" style="margin: 5px;">
+    <img src="./doc/img/android_app_setting.jpg" alt="Image 4" width="400" style="margin: 5px;">
+</div>
 
-### サーバ証明書
-./pem/serverフォルダ内にて以下のコマンドを実行します。
-秘密鍵生成
-```
-openssl genrsa -out server.key 2048
-```
-CSR発行＆CA署名実行
-※CommonNameには適当な値を入れてok
-※subjectAltName属性にブローカを公開するIPアドレスを指定してください。
-※クライアント側が証明書を判定する際にv3のSANフィールドのIPアドレスを参照するため必須
-```
-openssl req -x509 -newkey rsa:2048 -keyout server.key -out server.crt -days 1826 -addext "subjectAltName = IP:<ここにブローカのIPを指定>" -CA ../ca/ca.crt -CAkey ../ca/ca.key -nodes
-```
+## システム設計
+![System Design](./doc/img/SystemDesign.drawio.svg)
 
-### クライアント証明書
-PCとスマホ用に2つのクライアント証明書を作ります。
-./pem/win-clientフォルダ、./pem/mob-client内フォルダにて以下のコマンドを実行します。
-秘密鍵生成
-```
-openssl genrsa -out <winまたはmob>-client.key 2048
-```
+## セットアップ
 
-CSR発行＆CA署名実行
-※CommonNameには適当な値を入れてok
-※クライアント証明書ではIPアドレスを指定できないので入れない。
-```
-openssl req -x509 -newkey rsa:2048 -keyout <winまたはmob>-client.key -out <winまたはmob>-client.crt -days 1826 -CA ../ca/ca.crt -CAkey ../ca/ca.key -nodes
-```
-PEM生成
-```
-cat <winまたはmob>-client.key <winまたはmob>-client.crt > <winまたはmob>-client.pem
-```
+### ソースコードのクローン
+1. 本リポジトリをクローンしてください。
 
-### 証明書の配置
-#### Mosquitto
-```
-C:\Program Files\mosquitto\certs　
-```
-直下にserver.crt，server.key，ca.crtを格納する。
+### Mosquittoのインストール
+1. [Mosquittoのダウンロードページ](https://mosquitto.org/download/)からインストールしてください。
 
-#### Flutter
-```
-view/assets
-```
-Flutter側のコードではアプリケーション内部に証明書を組み込む。よって上記pathへca.crt, mob-client.crt, mob-client.keyを格納する。
+### OpenSSLのインストール
+1. [OpenSSLのダウンロードページ](https://slproweb.com/products/Win32OpenSSL.html)からインストールしてください。
+2. 以下のパスを設定してください。
+   ```
+   set OPENSSL_DIR=C:\OpenSSL-Win64
+   ```
+   ※インストールされるパスが異なる場合は適宜変更してください。
 
-### Mosquitto設定変更
-```
-C:\Program Files\mosquitto\mosquitto.conf
-```
-上記ファイルを修正します。
-```
-# ポート待ち受け
-listener 8883
-# 各種証明書
-cafile C:/Program Files/mosquitto/certs/ca.crt
-keyfile C:/Program Files/mosquitto/certs/server.key
-certfile C:/Program Files/mosquitto/certs/server.crt
-# クライアント証明書の検証
-require_certificate true
-use_identity_as_username true
-```
+### TLS対応
 
-※TLS対応せずに単純に外部から接続可能にする場合
-```
-# ポート待ち受け
-listener 1883
-# ログイン認証無効化
-allow_anonymous true
-```
+#### 自己認証局の設定
+1. `./pem/ca`フォルダ内で以下のコマンドを実行し、秘密鍵とCA証明書を生成します。
+   ```
+   openssl genrsa -des3 -out ca.key
+   openssl req -new -x509 -days 1826 -key ca.key -out ca.crt
+   ```
+
+#### サーバ証明書の設定
+1. `./pem/server`フォルダ内で以下のコマンドを実行し、秘密鍵とサーバ証明書を生成します。
+   ```
+   openssl genrsa -out server.key 2048
+   openssl req -x509 -newkey rsa:2048 -keyout server.key -out server.crt -days 1826 -addext "subjectAltName = IP:<ブローカのIPを指定>" -CA ../ca/ca.crt -CAkey ../ca/ca.key -nodes
+   ```
+
+#### クライアント証明書の設定
+1. `./pem/win-client`および`./pem/mob-client`フォルダ内で以下のコマンドを実行し、クライアント証明書を生成します。
+   ```
+   openssl genrsa -out <winまたはmob>-client.key 2048
+   openssl req -x509 -newkey rsa:2048 -keyout <winまたはmob>-client.key -out <winまたはmob>-client.crt -days 1826 -CA ../ca/ca.crt -CAkey ../ca/ca.key -nodes
+   cat <winまたはmob>-client.key <winまたはmob>-client.crt > <winまたはmob>-client.pem
+   ```
+
+#### 証明書の配置
+- **Mosquitto**: `C:\Program Files\mosquitto\certs`に`server.crt`、`server.key`、`ca.crt`を配置します。
+- **Flutter**: `view/assets`に`ca.crt`、`mob-client.crt`、`mob-client.key`を配置します。
+
+#### Mosquitto設定変更
+1. `C:\Program Files\mosquitto\mosquitto.conf`を編集し、以下の設定を追加します。
+   ```
+   listener 8883
+   cafile C:/Program Files/mosquitto/certs/ca.crt
+   keyfile C:/Program Files/mosquitto/certs/server.key
+   certfile C:/Program Files/mosquitto/certs/server.crt
+   require_certificate true
+   use_identity_as_username true
+   ```
+
 ### ファイアウォール設定
-ポート番号に対してインバウンドTCPの穴あけを行う。
+- ポート番号に対してインバウンドTCPの許可を設定します。
 
 ## ビルド
+
 ### Flutter
-以下コマンドでapkファイルを生成します。
-```
-flutter build apk
-```
+1. 以下のコマンドでAPKファイルを生成します。
+   ```
+   flutter build apk
+   ```
+2. USB接続して以下のコマンドでインストールします。
+   ```
+   flutter install build\app\outputs\flutter-apk\app-release.apk
+   ```
 
-USB接続して以下コマンドでインストールします。
-```
-flutter install build\app\outputs\flutter-apk\app-release.apk
-```
-### tauri
-以下コマンドでmsiファイルを生成します。
-```
-cargo tauri build
-```
-
-生成したmsiファイルを使ってinstallする。
+### Tauri
+1. 以下のコマンドでMSIファイルを生成します。
+   ```
+   cargo tauri build
+   ```
+2. 生成したMSIファイルを使用してインストールします。
 
 ## 管理者権限付与
-インストールしたtauri製のwindowsアプリのプロパティから常に管理者権限で実行するように設定する。
+- インストールしたTauri製のWindowsアプリのプロパティから常に管理者権限で実行するように設定します。
 
-# Start App
-## Windowsサイド起動
-* ビルド済みのexeファイルを実行する。Setupで管理者権限を付与しているので自動的に管理者実行になる。
+## アプリの起動
 
-## Mobileサイド起動
-* モバイル端末にインストールしたアプリを実行する。
+### Windowsサイド起動
+- ビルド済みのEXEファイルを実行します。セットアップで管理者権限を付与しているため、自動的に管理者実行になります。
 
+### モバイルサイド起動
+- モバイル端末にインストールしたアプリを実行します。
 
-# Auther
-* Kano
+## 作者
+- Kano
